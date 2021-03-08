@@ -53,3 +53,4 @@ stamp-h1
 test-driver
 test/mismatch/
 test/outputs/
+build/

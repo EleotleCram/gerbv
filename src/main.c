@@ -140,6 +140,7 @@ const struct option longopts[] = {
     {"log",             required_argument,  NULL,    'l'},
     {"output",          required_argument,  NULL,    'o'},
     {"project",         required_argument,  NULL,    'p'},
+    {"render-mode",     required_argument,  NULL,    'M'},
     {"tools",           required_argument,  NULL,    't'},
     {"translate",       required_argument,  NULL,    'T'},
     {"units",           required_argument,  NULL,    'u'},
@@ -161,7 +162,7 @@ const struct option longopts[] = {
     {0, 0, 0, 0},
 };
 #endif /* HAVE_GETOPT_LONG*/
-const char *opt_options = "VadhB:D:O:W:b:f:r:m:l:o:p:t:T:u:w:x:";
+const char *opt_options = "VadhM:B:D:O:W:b:f:r:m:l:o:p:t:T:u:w:x:";
 
 /**Global state variable to keep track of what's happening on the screen.
    Declared extern in main.h
@@ -618,6 +619,24 @@ main(int argc, char *argv[])
 	    }
 	    break;
 #endif /* HAVE_GETOPT_LONG */
+	case 'M' :
+	    if (optarg == NULL) {
+		fprintf(stderr, _("You must specify a render mode.\n"));
+		exit(1);
+	    }
+	    if(!strcmp(optarg, "fast")) {
+		screenRenderInfo.renderType = GERBV_RENDER_TYPE_GDK;
+	    } else if(!strcmp(optarg, "xor")) {
+		screenRenderInfo.renderType = GERBV_RENDER_TYPE_GDK_XOR;
+	    } else if(!strcmp(optarg, "normal")) {
+		screenRenderInfo.renderType = GERBV_RENDER_TYPE_CAIRO_NORMAL;
+	    } else if(!strcmp(optarg, "hq")) {
+		screenRenderInfo.renderType = GERBV_RENDER_TYPE_CAIRO_HIGH_QUALITY;
+            } else {
+		fprintf(stderr, _("No such render mode: %s. Must be one of fast|xor|normal|hq.\n"));
+		exit(1);
+	    }
+	    break;
     	case 'B' :
 	    if (optarg == NULL) {
 		fprintf(stderr, _("You must specify the border in the format <alpha>.\n"));
@@ -1154,6 +1173,17 @@ gerbv_print_help(void)
 "Usage: gerbv [OPTIONS...] [FILE...]\n"
 "\n"
 "Available options:\n"));
+
+#ifdef HAVE_GETOPT_LONG
+	printf(_(
+"  -M, --render-mode=<fast|xor|normal|hq>\n"
+"                          Start with the selected render mode.\n"
+"                          Defaults to 'fast'.\n")),
+#else
+	printf(_(
+"  -M<fast|xor|normal|hq>  Start with the selected render mode.\n"
+"                          Defaults to 'fast'.\n")),
+#endif
 
 #ifdef HAVE_GETOPT_LONG
 	printf(_(
